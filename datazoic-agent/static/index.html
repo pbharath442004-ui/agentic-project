@@ -1,0 +1,288 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Datazoic Agentic AI Platform</title>
+<style>
+  :root {
+    --bg: #0b0f17; --panel: #111826; --panel2: #0e1520; --border: #1f2b3f;
+    --text: #e6edf7; --muted: #8ea0b8; --accent: #4f8cff; --accent2: #22d3aa;
+    --warn: #f5b544; --err: #ff6b6b; --chip: #16233a;
+    --mono: "SF Mono", ui-monospace, Menlo, Consolas, monospace;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body { height: 100%; }
+  body {
+    background: var(--bg); color: var(--text);
+    font: 14px/1.55 -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Inter, sans-serif;
+    display: flex; flex-direction: column;
+  }
+  header {
+    display: flex; align-items: center; gap: 14px; padding: 12px 18px;
+    background: linear-gradient(180deg, #0d1420, #0b0f17);
+    border-bottom: 1px solid var(--border); flex-wrap: wrap;
+  }
+  .logo { display: flex; align-items: center; gap: 10px; font-weight: 700; font-size: 16px; letter-spacing: .2px; }
+  .logo .mark {
+    width: 30px; height: 30px; border-radius: 8px; display: grid; place-items: center;
+    background: linear-gradient(135deg, #4f8cff, #22d3aa); color: #04121f; font-weight: 800; font-size: 15px;
+  }
+  .logo small { display: block; font-weight: 400; color: var(--muted); font-size: 11px; }
+  .stats { display: flex; gap: 8px; margin-left: auto; flex-wrap: wrap; }
+  .stat {
+    background: var(--chip); border: 1px solid var(--border); border-radius: 999px;
+    padding: 4px 12px; font-size: 12px; color: var(--muted);
+  }
+  .stat b { color: var(--text); font-weight: 600; }
+  .main { flex: 1; display: flex; min-height: 0; }
+  .chat-col { flex: 1.6; display: flex; flex-direction: column; min-width: 0; }
+  .trace-col {
+    flex: 1; min-width: 320px; max-width: 460px; background: var(--panel2);
+    border-left: 1px solid var(--border); display: flex; flex-direction: column;
+  }
+  .trace-head { padding: 12px 16px; border-bottom: 1px solid var(--border); font-size: 12px; color: var(--muted);
+    display: flex; justify-content: space-between; align-items: center; }
+  .trace-head b { color: var(--text); font-size: 13px; }
+  #trace { flex: 1; overflow-y: auto; padding: 12px 16px; display: flex; flex-direction: column; gap: 10px; }
+  #messages { flex: 1; overflow-y: auto; padding: 22px 26px; scroll-behavior: smooth; }
+  .msg { max-width: 78%; margin-bottom: 16px; display: flex; flex-direction: column; gap: 4px; }
+  .msg.user { margin-left: auto; align-items: flex-end; }
+  .bubble {
+    padding: 10px 14px; border-radius: 14px; white-space: pre-wrap; word-break: break-word;
+  }
+  .msg.user .bubble { background: linear-gradient(135deg, #2b57d0, #4f8cff); color: #fff; border-bottom-right-radius: 4px; }
+  .msg.bot .bubble { background: var(--panel); border: 1px solid var(--border); border-bottom-left-radius: 4px; }
+  .bubble .src { margin-top: 8px; padding-top: 8px; border-top: 1px dashed var(--border); font-size: 12px; color: var(--muted); }
+  .bubble .src div { margin: 3px 0; }
+  .who { font-size: 11px; color: var(--muted); }
+  .tools-line { font-size: 11px; color: var(--muted); }
+  .tools-line code { color: var(--accent2); font-family: var(--mono); }
+  .thinking { color: var(--muted); font-style: italic; }
+  .composer {
+    display: flex; gap: 10px; padding: 14px 20px; border-top: 1px solid var(--border); background: var(--panel2);
+  }
+  #input {
+    flex: 1; background: var(--panel); color: var(--text); border: 1px solid var(--border);
+    border-radius: 12px; padding: 12px 14px; font: inherit; outline: none; resize: none; height: 46px;
+  }
+  #input:focus { border-color: var(--accent); }
+  #send {
+    background: linear-gradient(135deg, #2b57d0, #4f8cff); color: #fff; border: 0; border-radius: 12px;
+    padding: 0 22px; font-weight: 600; cursor: pointer; font-size: 14px;
+  }
+  #send:disabled { opacity: .5; cursor: wait; }
+  .chips { display: flex; gap: 8px; padding: 10px 20px 0; flex-wrap: wrap; }
+  .chip {
+    background: var(--chip); color: var(--muted); border: 1px solid var(--border); border-radius: 999px;
+    padding: 6px 12px; font-size: 12px; cursor: pointer; transition: all .15s;
+  }
+  .chip:hover { color: var(--text); border-color: var(--accent); }
+  /* trace cards */
+  .tcard { background: var(--panel); border: 1px solid var(--border); border-radius: 10px; padding: 10px 12px; font-size: 12px; }
+  .tcard .t { display: flex; align-items: center; gap: 8px; margin-bottom: 6px; }
+  .tcard .dot { width: 8px; height: 8px; border-radius: 50%; background: var(--accent); }
+  .tcard.tool .dot { background: var(--accent2); }
+  .tcard.err .dot { background: var(--err); }
+  .tcard .t b { font-size: 12px; }
+  .tcard .meta { color: var(--muted); font-size: 11px; margin-left: auto; }
+  .kv { color: var(--muted); }
+  .kv code { font-family: var(--mono); color: var(--text); background: var(--chip); padding: 1px 5px; border-radius: 4px; font-size: 11px; }
+  .dom { display: flex; flex-wrap: wrap; gap: 5px; margin-top: 6px; }
+  .dom span { background: var(--chip); border-radius: 6px; padding: 2px 8px; font-size: 11px; color: var(--muted); }
+  .dom span.on { color: var(--accent2); border: 1px solid #1d4a3e; }
+  pre.json {
+    font-family: var(--mono); font-size: 11px; background: #0a111c; border: 1px solid var(--border);
+    border-radius: 8px; padding: 8px; margin-top: 6px; overflow-x: auto; white-space: pre-wrap; word-break: break-word;
+    color: #b9c9e2; max-height: 180px; overflow-y: auto;
+  }
+  .sim { color: var(--warn); font-size: 11px; margin-top: 4px; }
+  .ok { color: var(--accent2); } .bad { color: var(--err); }
+  @media (max-width: 900px) { .trace-col { display: none; } }
+</style>
+</head>
+<body>
+<header>
+  <div class="logo">
+    <div class="mark">D</div>
+    <div>Datazoic Agent <small>scalable agentic platform · 500+ tools · RAG knowledge base</small></div>
+  </div>
+  <div class="stats" id="stats">
+    <span class="stat">loading…</span>
+  </div>
+</header>
+
+<div class="main">
+  <div class="chat-col">
+    <div id="messages">
+      <div class="msg bot">
+        <div class="who">Datazoic Agent</div>
+        <div class="bubble">Hi — I'm the Datazoic Pay agent. I can run business operations (invoices, payments, disputes, reports…), answer questions from the company knowledge base, and inspect my own capabilities.
+
+Try one of the suggestions below, or type anything.</div>
+      </div>
+    </div>
+    <div class="chips">
+      <span class="chip">Send an invoice for $50 to john@example.com</span>
+      <span class="chip">What was my total sales volume last month?</span>
+      <span class="chip">Is there a dispute open from user_123?</span>
+      <span class="chip">What tools are available for managing invoices?</span>
+      <span class="chip">What's the status of my last request?</span>
+      <span class="chip">How do I set up automatic payment reminders?</span>
+    </div>
+    <div class="composer">
+      <textarea id="input" placeholder="Ask the agent to do something…" rows="1"></textarea>
+      <button id="send">Send</button>
+    </div>
+  </div>
+
+  <div class="trace-col">
+    <div class="trace-head">
+      <div><b>Agent trace</b><br>routing · tool calls · retrieval</div>
+      <div id="session-tag" style="font-family:var(--mono);font-size:11px"></div>
+    </div>
+    <div id="trace"><div class="tcard kv">Each turn renders here: which domains the router scored, which tools were retrieved, every tool call with arguments and result, and the retrieved RAG sources.</div></div>
+  </div>
+</div>
+
+<script>
+const $ = (s) => document.querySelector(s);
+let sessionId = null;
+let busy = false;
+
+async function loadStats() {
+  try {
+    const r = await fetch("/api/stats"); const s = await r.json();
+    const sections = Object.entries(s.rag.sections).map(([k, v]) => `${k.split(" ")[0]} ${v}`).join(" · ");
+    $("#stats").innerHTML =
+      `<span class="stat">tools <b>${s.tools.total}</b> (${s.tools.implemented} real)</span>` +
+      `<span class="stat">KB docs <b>${s.rag.documents}</b> · 5 sections</span>` +
+      `<span class="stat">business rows <b>${Object.values(s.business_db).reduce((a, b) => a + b, 0).toLocaleString()}</b></span>` +
+      `<span class="stat">LLM <b>${s.llm.split(" ")[0]}</b></span>` +
+      `<span class="stat" title="${sections}">${sections.slice(0, 60)}</span>`;
+  } catch (e) { $("#stats").innerHTML = `<span class="stat">api offline</span>`; }
+}
+
+function esc(s) {
+  return String(s ?? "").replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+}
+function md(s) {
+  // tiny markdown: bold, code, links off, lists
+  let h = esc(s);
+  h = h.replace(/\*\*(.+?)\*\*/g, "<b>$1</b>");
+  h = h.replace(/`([^`]+)`/g, "<code>$1</code>");
+  h = h.replace(/^```[a-z]*\n?/gm, "").replace(/^```$/gm, "");
+  h = h.replace(/\n-/gm, "<br>–");
+  return h;
+}
+
+function addMsg(role, text, extra) {
+  const wrap = document.createElement("div");
+  wrap.className = "msg " + (role === "user" ? "user" : "bot");
+  const who = role === "user" ? "You" : "Datazoic Agent";
+  let html = `<div class="who">${who}</div><div class="bubble">${md(text)}`;
+  if (extra && extra.tools && extra.tools.length) {
+    html += `<div class="src">tools: ${extra.tools.map(t => `<code>${esc(t)}</code>`).join(" ")}</div>`;
+  }
+  if (extra && extra.sources && extra.sources.length) {
+    html += `<div class="src"><b style="color:var(--accent2)">RAG sources:</b>` +
+      extra.sources.map(s => `<div>• ${esc(s.title)} <span style="opacity:.7">(${esc(s.section)}, ${(s.score * 100).toFixed(0)}%)</span></div>`).join("") +
+      `</div>`;
+  }
+  html += `</div>`;
+  wrap.innerHTML = html;
+  $("#messages").appendChild(wrap);
+  $("#messages").scrollTop = $("#messages").scrollHeight;
+  return wrap;
+}
+
+function clearTrace() { $("#trace").innerHTML = ""; }
+
+function tcard(cls, title, meta, body) {
+  const d = document.createElement("div");
+  d.className = "tcard " + cls;
+  d.innerHTML = `<div class="t"><span class="dot"></span><b>${title}</b><span class="meta">${meta}</span></div>${body}`;
+  $("#trace").appendChild(d);
+  return d;
+}
+function pre(obj) {
+  return `<pre class="json">${esc(JSON.stringify(obj, null, 1))}</pre>`;
+}
+
+function renderTrace(r) {
+  clearTrace();
+  const rt = r.routing || {};
+  $("#session-tag").textContent = r.session_id || "";
+  // routing card
+  let domHtml = "";
+  const ds = rt.domain_scores || {};
+  const on = rt.matched_domain;
+  domHtml = Object.entries(ds).map(([k, v]) =>
+    `<span class="${k === on ? "on" : ""}">${esc(k)} ${(v * 100).toFixed(1)}</span>`).join("");
+  tcard("route", "1 · Tool routing", `${rt.ms ?? 0} ms`,
+    `<div class="kv">registry: <code>${rt.total_tools_in_registry ?? "?"}</code> tools → funnel to <code>${(rt.selected_tools || []).length}</code></div>
+     <div class="dom">${domHtml}</div>
+     <div class="kv" style="margin-top:6px">selected: ${ (rt.selected_tools || []).map(t => `<code>${esc(t.name.replace("paypal.", "").replace("datazoic.", ""))}</code>`).join(" ") }</div>`);
+  // tool call cards
+  (r.tool_calls || []).forEach((tc, i) => {
+    const ok = tc.ok;
+    tcard(ok ? "tool" : "err", `${i + 2} · ${esc(tc.name)}`, ok ? `<span class="ok">ok</span> · ${tc.ms} ms` : `<span class="bad">error</span>`,
+      (Object.keys(tc.args || {}).length ? `<div class="kv">args: ${preInline(tc.args)}</div>` : `<div class="kv">args: {}</div>`) +
+      (ok ? (pre(tc.result) + (tc.simulated ? `<div class="sim">⚠ simulated execution (prototype)</div>` : ""))
+          : `<pre class="json">${esc(tc.error)}</pre>`)
+    );
+  });
+  // sources
+  if (r.sources && r.sources.length) {
+    tcard("route", "RAG retrieval", `${r.sources.length} sources`,
+      r.sources.map(s => `<div class="kv" style="margin-top:4px">• <b style="color:var(--text)">${esc(s.title)}</b><br>
+      <span style="opacity:.75">${esc(s.section)} · score ${(s.score * 100).toFixed(1)}%</span><br>
+      ${esc((s.snippet || "").slice(0, 140))}…</div>`).join(""));
+  }
+}
+function preInline(o) {
+  return `<code>${esc(JSON.stringify(o))}</code>`;
+}
+
+async function send(text) {
+  if (busy || !text.trim()) return;
+  busy = true;
+  $("#send").disabled = true;
+  $("#input").value = "";
+  addMsg("user", text);
+  const think = addMsg("bot", "thinking…");
+  think.querySelector(".bubble").classList.add("thinking");
+  try {
+    const r = await fetch("/api/chat", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ message: text, session_id: sessionId }),
+    });
+    const data = await r.json();
+    if (!r.ok) throw new Error(data.detail || JSON.stringify(data));
+    sessionId = data.session_id;
+    think.remove();
+    addMsg("bot", data.reply, {
+      tools: (data.tool_calls || []).map(t => t.name.replace("paypal.", "📄 ").replace("datazoic.", "⚙️ ")),
+      sources: data.sources || [],
+    });
+    renderTrace(data);
+  } catch (e) {
+    think.remove();
+    addMsg("bot", "⚠ " + e.message);
+  } finally {
+    busy = false;
+    $("#send").disabled = false;
+    $("#input").focus();
+  }
+}
+
+$("#send").addEventListener("click", () => send($("#input").value));
+$("#input").addEventListener("keydown", (e) => {
+  if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); send($("#input").value); }
+});
+document.querySelectorAll(".chip").forEach(c => c.addEventListener("click", () => send(c.textContent)));
+loadStats();
+</script>
+</body>
+</html>
