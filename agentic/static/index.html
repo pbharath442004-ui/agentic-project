@@ -1,0 +1,96 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Datazoic AI</title>
+  <meta name="description" content="Datazoic AI invoice operations assistant">
+  <link rel="stylesheet" href="/static/styles.css">
+</head>
+<body>
+  <div class="app-shell">
+    <aside class="sidebar">
+      <div class="brand">
+        <div class="brand-mark">D</div>
+        <div>
+          <div class="brand-name">Datazoic</div>
+          <div class="brand-sub">AI Workspace</div>
+        </div>
+      </div>
+
+      <button class="new-chat" id="newChat">
+        <span class="plus">＋</span> New conversation
+      </button>
+
+      <div class="side-section">
+        <div class="side-label">Assistant</div>
+        <div class="capability active"><span>✦</span> Invoice operations</div>
+        <div class="capability"><span>⌕</span> System search</div>
+        <div class="capability"><span>▤</span> Knowledge base</div>
+      </div>
+
+      <div class="sidebar-footer">
+        <div class="status-dot"></div>
+        <div>
+          <strong>Datazoic AI</strong>
+          <small>Connected to workspace</small>
+        </div>
+      </div>
+    </aside>
+
+    <main class="main">
+      <header class="topbar">
+        <div class="mobile-brand"><span class="brand-mark small">D</span> Datazoic AI</div>
+        <div class="topbar-right">
+          <span class="secure"><span class="tiny-dot"></span> Workspace connected</span>
+          <button class="icon-btn" id="clearChat" title="Clear conversation">⌫</button>
+        </div>
+      </header>
+
+      <section class="chat-area" id="chatArea">
+        <div class="welcome" id="welcome">
+          <div class="hero-mark">✦</div>
+          <div class="eyebrow">DATAZOIC AI</div>
+          <h1>Your intelligent<br><span>operations assistant.</span></h1>
+          <p>Ask questions, search invoice records, or execute invoice operations in natural language.</p>
+
+          <div class="suggestions">
+            <button class="suggestion" data-prompt="Show sales report">
+              <span class="suggestion-icon">▥</span>
+              <span><strong>Sales overview</strong><small>Show the latest sales report</small></span>
+              <span class="arrow">→</span>
+            </button>
+            <button class="suggestion" data-prompt="What is invoice INV-ABC123 status?">
+              <span class="suggestion-icon">◫</span>
+              <span><strong>Check an invoice</strong><small>Look up an invoice status</small></span>
+              <span class="arrow">→</span>
+            </button>
+            <button class="suggestion" data-prompt="Create an invoice for ABC Technologies for 5000 INR">
+              <span class="suggestion-icon">＋</span>
+              <span><strong>Create an invoice</strong><small>Start a new customer invoice</small></span>
+              <span class="arrow">→</span>
+            </button>
+            <button class="suggestion" data-prompt="What is an invoice?">
+              <span class="suggestion-icon">?</span>
+              <span><strong>Ask the knowledge base</strong><small>Get an operational explanation</small></span>
+              <span class="arrow">→</span>
+            </button>
+          </div>
+        </div>
+      </section>
+
+      <div class="composer-wrap">
+        <form class="composer" id="composer">
+          <textarea id="message" rows="1" placeholder="Message Datazoic AI…" autocomplete="off"></textarea>
+          <div class="composer-bottom">
+            <div class="composer-hint"><span>✦</span> Gemini + RAG + System Search</div>
+            <button class="send-btn" id="sendBtn" type="submit" aria-label="Send">↑</button>
+          </div>
+        </form>
+        <div class="disclaimer">Datazoic AI can take actions in your invoice workspace. Review important changes before relying on them.</div>
+      </div>
+    </main>
+  </div>
+  <script src="/static/app.js"></script>
+</body>
+</html>
